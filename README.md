@@ -1,19 +1,4 @@
-
-# <img src="file/logo.png" alt="RWKU: Benchmarking Real-World Knowledge Unlearning for Large Language Models" width="5%"> RWKU: Benchmarking Real-World Knowledge Unlearning for Large Language Models 
-
-<p align="center">
-  <a href="https://rwku-bench.github.io/"> 🏠 Homepage</a> |
-  <a href="https://arxiv.org/abs/2406.10890"> 📜 Paper</a> | 
-  <a href="https://huggingface.co/datasets/jinzhuoran/RWKU"> 🤗 Dataset</a> | 
-  <a href="#Installation"> 🚀 Installation</a> 
-</p>
-
-### News
-- 2024-09-26: 🚀🚀 Our paper has been accepted at NeurIPS D&B Track 2024.
-
-- 2024-06-18: We released our [paper](https://arxiv.org/abs/2406.10890) titled "RWKU: Benchmarking Real-World Knowledge Unlearning for Large Language Models".
-
-- 2024-06-05: We released our [dataset](https://huggingface.co/datasets/jinzhuoran/RWKU) on the Huggingface.
+## This Project is Forked From RWKU Repo
 
 ### Description
 
