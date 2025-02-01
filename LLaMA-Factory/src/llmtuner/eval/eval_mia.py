@@ -43,18 +43,26 @@ def eval_mia(model, tokenizer, forget, output_result_dir=None, use_prompt=False)
         mu = (probs * log_probs).sum(-1)
         sigma = (probs * torch.square(log_probs)).sum(-1) - torch.square(mu)
 
+        # Stabilize calculations with eps
+        eps = 1e-8
+
+        # Normalize and stabilize scores
+        token_log_probs = token_log_probs.to(torch.float32)
+        mu = (probs * log_probs).sum(-1).to(torch.float32)
+        sigma = ((probs * torch.square(log_probs)).sum(-1) - torch.square(mu)).clamp(min=eps)
+
         ## mink
         for ratio in [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]:
-            k_length = int(len(token_log_probs) * ratio)
-            topk = np.sort(token_log_probs.cpu())[:k_length]
-            scores[f'mink_{ratio}'].append(np.mean(topk).item())
+            k_length = max(1, int(len(token_log_probs) * ratio))
+            topk = np.sort(token_log_probs.cpu().numpy())[:k_length]
+            scores[f'mink_{ratio}'].append(float(np.mean(topk)))
 
         ## mink++
-        mink_plus = (token_log_probs - mu) / sigma.sqrt()
+        mink_plus = ((token_log_probs - mu) / torch.sqrt(sigma + eps)).clamp(min=-1e6, max=1e6)
         for ratio in [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]:
-            k_length = int(len(mink_plus) * ratio)
-            topk = np.sort(mink_plus.cpu())[:k_length]
-            scores[f'mink++_{ratio}'].append(np.mean(topk).item())
+            k_length = max(1, int(len(mink_plus) * ratio))
+            topk = np.sort(mink_plus.cpu().numpy())[:k_length]
+            scores[f'mink++_{ratio}'].append(float(np.mean(topk)))
 
     print("Loss {:.3f}".format(np.mean(scores['loss'])))
     print("Zlib {:.3f}".format(np.mean(scores['zlib'])))
