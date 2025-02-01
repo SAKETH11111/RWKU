@@ -28,15 +28,16 @@ do
     echo $id
 
     PYTHONPATH=./ WANDB_DISABLED=true python src/train_bash.py --stage ga \
-    --model_name_or_path meta-llama/Meta-Llama-3-8B-Instruct --do_train --save_model \
+    --model_name_or_path Qwen/Qwen1.5-1.8B --do_train --save_model \
     --dataset ${id}_Positive --dataset_dir ./data --finetuning_type full \
-    --output_dir ./saves/RWKU/Target/${id}/ga_full/llama3_8b_instruct --overwrite_cache \
-    --overwrite_output_dir --cutoff_len 512 --preprocessing_num_workers 16 \
-    --per_device_train_batch_size 8 --per_device_eval_batch_size 8 --gradient_accumulation_steps 1 \
+    --output_dir ./saves/RWKU/Target/${id}/ga_full/qwen15_18b --overwrite_cache \
+    --overwrite_output_dir --cutoff_len 64 --preprocessing_num_workers 1 \
+    --per_device_train_batch_size 1 --per_device_eval_batch_size 1 --gradient_accumulation_steps 4 \
+    --gradient_checkpointing \
     --lr_scheduler_type cosine --logging_steps 10 --warmup_steps 20 --save_steps 30000 \
-    --eval_steps 30000 --evaluation_strategy steps --load_best_model_at_end --template llama3 \
-    --learning_rate 6e-8 --num_train_epochs 3.0 --val_size 0.0000001 --plot_loss \
-    --output_result_dir ./results/RWKU/Target/${id}/ga_full/llama3_8b_instruct \
-    --fp16 --eval_dataset_dir ./data/RWKU/Target/ \
-    --target ${id} 2>&1 | tee ./logs/RWKU/Target/ga_full/llama3_8b_instruct_${id}.log
+    --evaluation_strategy "no" --template qwen \
+    --learning_rate 6e-8 --num_train_epochs 3.0 \
+    --output_result_dir ./results/RWKU/Target/${id}/ga_full/qwen15_18b \
+    --eval_dataset_dir ./data/RWKU/Target/ \
+    --target ${id} 2>&1 | tee ./logs/RWKU/Target/ga_full/qwen15_18b_${id}.log
 done
