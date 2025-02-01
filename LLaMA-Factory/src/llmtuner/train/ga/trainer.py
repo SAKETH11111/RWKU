@@ -2,6 +2,9 @@ from types import MethodType
 from typing import TYPE_CHECKING, Optional
 
 from transformers import Trainer
+from transformers.utils.versions import require_version
+
+require_version("datasets>=2.14.3", "To fix: pip install datasets>=2.14.3")
 
 from ...extras.logging import get_logger
 from ..utils import create_custom_optimzer, create_custom_scheduler
@@ -40,10 +43,24 @@ class CustomTrainer(Trainer):
         create_custom_scheduler(self.args, num_training_steps, optimizer)
         return super().create_scheduler(num_training_steps, optimizer)
 
-    def compute_loss(self, model, inputs, return_outputs=False):
-        if return_outputs:
-            loss, outputs = super().compute_loss(model, inputs, return_outputs)
-        else:
-            loss = super().compute_loss(model, inputs, return_outputs)
-        loss = -loss
+    def compute_loss(self, model, inputs, num_items_in_batch=None, return_outputs=False):
+        r"""
+        Computes the GA loss - maximizes rather than minimizes the loss to unlearn.
+
+        Arguments:
+            model (`nn.Module`):
+                The model to train.
+            inputs (`Dict[str, Union[torch.Tensor, Any]]`):
+                The inputs and targets of the model.
+            return_outputs (`bool`, *optional*, defaults to `False`):
+                If True returns model outputs along with the loss.
+
+        Returns:
+            `Union[torch.Tensor, Tuple[torch.Tensor, Dict[str, torch.Tensor]]]`:
+                If return_outputs=False, returns the loss. Otherwise returns the loss and model outputs.
+        """
+        outputs = model(**inputs)
+        loss = outputs.loss  # maximize rather than minimize the loss
+        loss = -loss  # negate loss to maximize
+
         return (loss, outputs) if return_outputs else loss
