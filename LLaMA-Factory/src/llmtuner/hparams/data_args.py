@@ -21,7 +21,7 @@ class DataArguments:
         metadata={"help": "Path to the folder containing the datasets."},
     )
     eval_dataset_dir: str = field(
-        default="data",
+        default="",
     )
     output_result_dir: str = field(
         default="result",
