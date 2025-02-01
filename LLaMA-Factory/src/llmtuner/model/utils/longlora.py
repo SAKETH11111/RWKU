@@ -5,26 +5,21 @@ import torch
 import torch.nn as nn
 from transformers.models.llama.modeling_llama import (
     Cache,
-    LlamaAttention,
-    LlamaFlashAttention2,
-    LlamaSdpaAttention,
+    LlamaAttention,  
     apply_rotary_pos_emb,
     repeat_kv,
 )
+# Remove LlamaFlashAttention2 and LlamaSdpaAttention imports since they're not in transformers 4.40.0
 from transformers.utils import logging
 from transformers.utils.versions import require_version
 
 from ...extras.constants import SUPPORTED_CLASS_FOR_S2ATTN
 
-
 if TYPE_CHECKING:
     from transformers import PretrainedConfig
-
     from ...hparams import ModelArguments
 
-
 logger = logging.get_logger(__name__)
-
 
 # Modified from:
 # https://github.com/huggingface/transformers/blob/v4.40.0/src/transformers/models/llama/modeling_llama.py
@@ -301,10 +296,8 @@ def llama_sdpa_attention_forward(
 def _apply_llama_patch() -> None:
     require_version("transformers==4.40.0", "To fix: pip install transformers==4.40.0")
     LlamaAttention.forward = llama_attention_forward
-    LlamaFlashAttention2.forward = llama_flash_attention_2_forward
-    LlamaSdpaAttention.forward = llama_sdpa_attention_forward
-
-
+    # Remove patches for Flash Attention and SDPA since they're not available
+    
 def configure_longlora(config: "PretrainedConfig", model_args: "ModelArguments", is_trainable: bool) -> None:
     if not is_trainable or not model_args.shift_attn:
         return
